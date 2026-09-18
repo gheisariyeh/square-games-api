@@ -14,9 +14,7 @@ public interface GameService {
 
     List<MoveInfo> getPossibleMoves(UUID gameId);
 
-    void playMove(
-            UUID gameId,
-            CellPosition from,
-            CellPosition to
-    );
+    void playMove(UUID gameId, CellPosition from, CellPosition to);
+
+    List<Game> getAllGames();
 }

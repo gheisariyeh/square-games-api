@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/games")
 public class GameController {
 
     private final GameService gameService;
@@ -19,25 +20,30 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    @PostMapping("/games")
+    @PostMapping
     public String createGame(@RequestBody GameCreationParams params) {
         Game game = gameService.createGame(params.getGameType(), params.getPlayerCount(), params.getBoardSize());
         return game.getId().toString();
     }
 
-    @GetMapping("/games/{gameId}")
+    @GetMapping("/{gameId}")
     public Game getGame(@PathVariable UUID gameId) {
         return gameService.getGame(gameId);
     }
 
-    @GetMapping("/games/{gameId}/moves")
+    @GetMapping("/{gameId}/moves")
     public List<MoveInfo> getPossibleMoves(@PathVariable UUID gameId) {
         return gameService.getPossibleMoves(gameId);
     }
 
-    @PostMapping("/games/{gameId}/moves")
+    @PostMapping("/{gameId}/moves")
     public Game playMove(@PathVariable UUID gameId, @RequestBody MoveParams params) {
         gameService.playMove(gameId, params.getFrom(), params.getTo());
         return gameService.getGame(gameId);
+    }
+
+    @GetMapping
+    public List<Game> getAllGames() {
+        return gameService.getAllGames();
     }
 }
