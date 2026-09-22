@@ -13,7 +13,7 @@ public interface GamePlugin {
 
     String getId();
 
-    Game createGame(Integer playerCount, Integer boardSize);
+    Game createGame(Integer playerCount, Integer boardSize, UUID userId, List<UUID> opponentIds);
 
     Game restoreGame(
             UUID gameId,

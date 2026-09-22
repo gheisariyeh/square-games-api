@@ -21,29 +21,36 @@ public class GameController {
     }
 
     @PostMapping
-    public String createGame(@RequestBody GameCreationParams params) {
-        Game game = gameService.createGame(params.getGameType(), params.getPlayerCount(), params.getBoardSize());
+    public String createGame(@RequestHeader("X-UserId") UUID userId, @RequestBody GameCreationParams params) {
+
+        Game game = gameService.createGame(
+                params.getGameType(),
+                params.getPlayerCount(),
+                params.getBoardSize(),
+                userId,
+                params.getOpponentIds()
+        );
         return game.getId().toString();
     }
 
     @GetMapping("/{gameId}")
-    public Game getGame(@PathVariable UUID gameId) {
-        return gameService.getGame(gameId);
+    public Game getGame( @PathVariable UUID gameId, @RequestHeader("X-UserId") UUID userId) {
+        return gameService.getGame(gameId, userId);
     }
 
     @GetMapping("/{gameId}/moves")
-    public List<MoveInfo> getPossibleMoves(@PathVariable UUID gameId) {
-        return gameService.getPossibleMoves(gameId);
+    public List<MoveInfo> getPossibleMoves( @RequestHeader("X-UserId") UUID userId, @PathVariable UUID gameId) {
+        return gameService.getPossibleMoves(gameId, userId);
     }
 
     @PostMapping("/{gameId}/moves")
-    public Game playMove(@PathVariable UUID gameId, @RequestBody MoveParams params) {
-        gameService.playMove(gameId, params.getFrom(), params.getTo());
-        return gameService.getGame(gameId);
+    public Game playMove( @RequestHeader("X-UserId") UUID userId, @PathVariable UUID gameId, @RequestBody MoveParams params) {
+        gameService.playMove(gameId, userId, params.getFrom(), params.getTo());
+        return gameService.getGame(gameId, userId);
     }
 
     @GetMapping
-    public List<Game> getAllGames() {
-        return gameService.getAllGames();
+    public List<Game> getAllGames( @RequestHeader("X-UserId") UUID userId) {
+        return gameService.getAllGames(userId);
     }
 }

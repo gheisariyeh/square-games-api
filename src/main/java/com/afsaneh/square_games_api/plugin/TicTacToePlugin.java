@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class TicTacToePlugin implements GamePlugin {
@@ -46,12 +43,28 @@ public class TicTacToePlugin implements GamePlugin {
     }
 
     @Override
-    public Game createGame(Integer playerCount, Integer boardSize) {
+    public Game createGame(Integer playerCount, Integer boardSize, UUID userId, List<UUID> opponentIds) {
+
         int finalPlayerCount = playerCount != null ? playerCount : defaultPlayerCount;
 
         int finalBoardSize = boardSize != null ? boardSize : defaultBoardSize;
 
-        return factory.createGame(finalPlayerCount, finalBoardSize);
+        Set<UUID> playerIds = new LinkedHashSet<>();
+
+        playerIds.add(userId);
+
+        if (opponentIds != null) {
+            playerIds.addAll(opponentIds);
+        }
+
+        if (playerIds.size() != finalPlayerCount) {
+            throw new IllegalArgumentException(
+                    "Expected " + finalPlayerCount + " players, but got "
+                            + playerIds.size()
+            );
+        }
+
+        return factory.createGame(finalBoardSize, playerIds);
     }
 
     @Override

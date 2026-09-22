@@ -1,9 +1,13 @@
 package com.afsaneh.square_games_api.dto;
 
+import java.util.List;
+import java.util.UUID;
+
 public class GameCreationParams {
-    String gameType;
-    Integer playerCount;
-    Integer boardSize;
+    private String gameType;
+    private Integer playerCount;
+    private Integer boardSize;
+    private List<UUID> opponentIds;
 
     public String getGameType() {
         return gameType;
@@ -17,6 +21,10 @@ public class GameCreationParams {
         return boardSize;
     }
 
+    public List<UUID> getOpponentIds() {
+        return opponentIds;
+    }
+
     public void setGameType(String gameType) {
         this.gameType = gameType;
     }
@@ -27,5 +35,8 @@ public class GameCreationParams {
 
     public void setBoardSize(Integer boardSize) {
         this.boardSize = boardSize;
+    }
+    public void setOpponentIds(List<UUID> opponentIds) {
+        this.opponentIds = opponentIds;
     }
 }
