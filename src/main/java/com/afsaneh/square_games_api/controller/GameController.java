@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +29,10 @@ public class GameController {
 
     public GameController(GameService gameService) {
         this.gameService = gameService;
+    }
+
+    private UUID getCurrentUserId(Authentication authentication) {
+        return UUID.fromString(authentication.getName());
     }
 
     @Operation(
@@ -52,8 +58,8 @@ public class GameController {
             @Parameter(
             description = "Identifier of the user creating the game",
             required = true
-    )@RequestHeader("X-UserId") UUID userId, @RequestBody GameCreationParams params) {
-
+    )Authentication authentication, @RequestBody GameCreationParams params) {
+        UUID userId = getCurrentUserId(authentication);
         Game game = gameService.createGame(
                 params.getGameType(),
                 params.getPlayerCount(),
@@ -88,7 +94,8 @@ public class GameController {
                     description = "Identifier of the user sending the request",
                     required = true
             )
-            @RequestHeader("X-UserId") UUID userId) {
+            Authentication authentication) {
+        UUID userId = getCurrentUserId(authentication);
         return gameService.getGame(gameId, userId);
     }
 
@@ -111,12 +118,13 @@ public class GameController {
             @Parameter(
                     description = "Identifier of the user sending the request",
                     required = true
-    )@RequestHeader("X-UserId") UUID userId,
+    )Authentication authentication,
             @Parameter(
                     description = "Identifier of the game",
                     required = true
             )
             @PathVariable UUID gameId) {
+        UUID userId = getCurrentUserId(authentication);
         return gameService.getPossibleMoves(gameId, userId);
     }
 
@@ -147,12 +155,13 @@ public class GameController {
             @Parameter(
                     description = "Identifier of the user playing the move",
                     required = true
-    )@RequestHeader("X-UserId") UUID userId,
+    )Authentication authentication,
             @Parameter(
                     description = "Identifier of the game",
                     required = true
             )
             @PathVariable UUID gameId, @RequestBody MoveParams params) {
+        UUID userId = getCurrentUserId(authentication);
         gameService.playMove(gameId, userId, params.getFrom(), params.getTo());
         return gameService.getGame(gameId, userId);
     }
@@ -176,7 +185,8 @@ public class GameController {
             @Parameter(
                     description = "Identifier of the user sending the request",
                     required = true
-    )@RequestHeader("X-UserId") UUID userId) {
+    )Authentication authentication) {
+        UUID userId = getCurrentUserId(authentication);
         return gameService.getAllGames(userId);
     }
 }

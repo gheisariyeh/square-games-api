@@ -1,6 +1,5 @@
 package com.afsaneh.square_games_api.service;
 
-import com.afsaneh.square_games_api.client.UserClient;
 import com.afsaneh.square_games_api.dao.GameDao;
 import com.afsaneh.square_games_api.dto.MoveInfo;
 import com.afsaneh.square_games_api.plugin.GamePlugin;
@@ -22,21 +21,10 @@ public class GameServiceImpl implements GameService {
 
     private final List<GamePlugin> plugins;
     private final GameDao gameDao;
-    private final UserClient userClient;
 
-    public GameServiceImpl(List<GamePlugin> plugins, GameDao gameDao, UserClient userClient) {
+    public GameServiceImpl(List<GamePlugin> plugins, GameDao gameDao) {
         this.plugins = plugins;
         this.gameDao = gameDao;
-        this.userClient = userClient;
-    }
-
-    private void validateUser(UUID userId) {
-        if (!userClient.isValidUser(userId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "Unknown user"
-            );
-        }
     }
 
     private Game findGame(UUID gameId) {
@@ -46,14 +34,6 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game createGame(String gameType, Integer playerCount, Integer boardSize, UUID userId, List<UUID> opponentIds) {
-        validateUser(userId);
-
-
-        if (opponentIds != null) {
-            for (UUID opponentId : opponentIds) {
-                validateUser(opponentId);
-            }
-        }
 
         for (GamePlugin plugin : plugins) {
             if (plugin.getId().equals(gameType)) {
@@ -68,13 +48,11 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game getGame(UUID gameId, UUID userId) {
-        validateUser(userId);
         return findGame(gameId);
     }
 
     @Override
     public List<MoveInfo> getPossibleMoves(UUID gameId, UUID userId) {
-        validateUser(userId);
 
         Game game = findGame(gameId);
 
@@ -100,7 +78,6 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void playMove(UUID gameId, UUID userId, CellPosition from, CellPosition to) {
-        validateUser(userId);
 
         Game game = findGame(gameId);
         if (!userId.equals(game.getCurrentPlayerId())) {
@@ -151,7 +128,6 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public List<Game> getAllGames(UUID userId) {
-        validateUser(userId);
         return gameDao.findAll().filter(game -> game.getPlayerIds().contains(userId)).toList();
     }
 }
